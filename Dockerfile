@@ -1,4 +1,4 @@
-﻿FROM debian:bookworm-slim
+FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl python3 python3-pip python3-venv \
@@ -14,8 +14,7 @@ EXPOSE 1430 1431
 
 VOLUME ["/root/.enowxai"]
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 \
     CMD curl -sf http://localhost:1430/health || exit 1
 
-ENTRYPOINT ["/root/.local/bin/enowxai"]
-CMD ["start"]
+CMD ["/bin/sh", "-lc", "/root/.local/bin/enowxai start || true; tail -f /dev/null"]
