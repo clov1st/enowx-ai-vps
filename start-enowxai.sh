@@ -4,7 +4,7 @@ set -u
 ENOWXAI_BIN="/root/.local/bin/enowxai"
 HEALTH_URL="http://127.0.0.1:1430/health"
 
-echo "[entrypoint] Starting EnowX AI supervisor..."
+echo "[entrypoint] Starting EnowX AI + Nginx..."
 
 health_ok() {
   curl -sf "$HEALTH_URL" >/dev/null 2>&1
@@ -15,6 +15,18 @@ start_enowxai() {
   "$ENOWXAI_BIN" start || true
 }
 
+monitor_enowxai() {
+  while true; do
+    if ! health_ok; then
+      echo "[entrypoint] EnowX AI health failed. Restarting..."
+      "$ENOWXAI_BIN" stop || true
+      sleep 2
+      start_enowxai
+    fi
+    sleep 30
+  done
+}
+
 start_enowxai
 
 i=0
@@ -23,7 +35,6 @@ while [ "$i" -lt 30 ]; do
     echo "[entrypoint] EnowX AI is healthy."
     break
   fi
-
   i=$((i + 1))
   echo "[entrypoint] Waiting for EnowX AI health... $i/30"
   sleep 2
@@ -36,13 +47,7 @@ if ! health_ok; then
   start_enowxai
 fi
 
-while true; do
-  if ! health_ok; then
-    echo "[entrypoint] EnowX AI health failed. Restarting..."
-    "$ENOWXAI_BIN" stop || true
-    sleep 2
-    start_enowxai
-  fi
+monitor_enowxai &
 
-  sleep 30
-done
+echo "[entrypoint] Starting nginx on port 80..."
+exec nginx -g "daemon off;"
