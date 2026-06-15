@@ -1,11 +1,9 @@
-services:
+﻿services:
   warp:
     image: caomingjun/warp:latest
     restart: unless-stopped
     environment:
       WARP_SLEEP: "5"
-      # Optional kalau punya WARP+:
-      # WARP_LICENSE_KEY: "${WARP_LICENSE_KEY}"
     cap_add:
       - NET_ADMIN
     devices:
