@@ -1,22 +1,21 @@
-* text=auto eol=lf
+FROM debian:bookworm-slim
 
-*.md text eol=lf
-*.txt text eol=lf
-*.json text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.ts text eol=lf
-*.tsx text eol=lf
-*.js text eol=lf
-*.jsx text eol=lf
-*.sql text eol=lf
-*.sh text eol=lf
-*.env.example text eol=lf
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl python3 python3-pip python3-venv \
+    xvfb fonts-liberation libnss3 libatk-bridge2.0-0 libdrm2 \
+    libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2 \
+    libpango-1.0-0 libcairo2 libcups2 libxss1 libgtk-3-0 \
+    libdbus-glib-1-2 wget jq procps lsof \
+    && rm -rf /var/lib/apt/lists/*
 
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.webp binary
-*.ico binary
-*.pdf binary
+RUN curl -sSL https://api.enowxlabs.com/install/enowx-ai | bash
+
+EXPOSE 1430 1431
+
+VOLUME ["/root/.enowxai"]
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD curl -sf http://localhost:1430/health || exit 1
+
+ENTRYPOINT ["/root/.local/bin/enowxai"]
+CMD ["__daemon"]
