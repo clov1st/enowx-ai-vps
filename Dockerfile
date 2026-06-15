@@ -10,11 +10,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -sSL https://api.enowxlabs.com/install/enowx-ai | bash
 
+COPY start-enowxai.sh /usr/local/bin/start-enowxai.sh
+RUN chmod +x /usr/local/bin/start-enowxai.sh
+
 EXPOSE 1430 1431
 
 VOLUME ["/root/.enowxai"]
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=10s --retries=10 --start-period=60s \
     CMD curl -sf http://localhost:1430/health || exit 1
 
-CMD ["/bin/sh", "-lc", "/root/.local/bin/enowxai start || true; tail -f /dev/null"]
+CMD ["/usr/local/bin/start-enowxai.sh"]
