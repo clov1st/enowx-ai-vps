@@ -1,18 +1,9 @@
 services:
   warp:
-    image: caomingjun/warp:latest
+    image: ghcr.io/mon-ius/docker-warp-socks:v5
     restart: unless-stopped
-    environment:
-      WARP_SLEEP: "5"
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    sysctls:
-      net.ipv6.conf.all.disable_ipv6: 0
-      net.ipv4.conf.all.src_valid_mark: 1
-    volumes:
-      - warp-data:/var/lib/cloudflare-warp
+    expose:
+      - "9091"
 
   enowxai:
     build:
@@ -30,6 +21,5 @@ services:
       - "1431"
 
 volumes:
-  warp-data:
   enowxai-data:
   enowxai-venv:
