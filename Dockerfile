@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+﻿FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl python3 python3-pip python3-venv \
@@ -18,4 +18,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD curl -sf http://localhost:1430/health || exit 1
 
 ENTRYPOINT ["/root/.local/bin/enowxai"]
-CMD ["__daemon"]
+CMD ["start"]
