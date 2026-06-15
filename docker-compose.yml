@@ -1,0 +1,52 @@
+services:
+  warp:
+    image: caomingjun/warp:latest
+    restart: unless-stopped
+    environment:
+      WARP_SLEEP: "5"
+      # Optional kalau punya WARP+:
+      # WARP_LICENSE_KEY: "${WARP_LICENSE_KEY}"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+      net.ipv4.conf.all.src_valid_mark: 1
+    volumes:
+      - warp-data:/var/lib/cloudflare-warp
+
+  enowxai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - warp
+    environment:
+      ENOWXAI_PROXY_HOST: 0.0.0.0
+      ENOWXAI_DASHBOARD_HOST: 0.0.0.0
+    volumes:
+      - enowxai-data:/root/.enowxai
+      - enowxai-venv:/root/.local/lib/enowxai/auth/.venv
+    expose:
+      - "1430"
+      - "1431"
+
+  edge:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - enowxai
+    environment:
+      DASHBOARD_DOMAIN: enowx-ai.clowy.id
+      API_DOMAIN: enowx-api.clowy.id
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    expose:
+      - "80"
+
+volumes:
+  warp-data:
+  enowxai-data:
+  enowxai-venv:
